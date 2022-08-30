@@ -108,56 +108,46 @@ bool VirtualMachine::emulateCycle()
     switch (memory[PC] & 0xF0)
     {
     case 0x00:
-        // std::cout << "DAT\n";
         return true;
 
     case 0x10:
-        // std::cout << "MOV\n";
         MOV();
         break;
 
     case 0x20:
-        // std::cout << "ADD\n";
         OP("ADD");
         break;
 
     case 0x30:
-        // std::cout << "SUB\n";
         OP("SUB");
         break;
 
     case 0x40:
-        // std::cout << "MUL\n";
         OP("MUL");
         break;
 
     case 0x50:
-        // std::cout << "DIV\n";
         OP("DIV");
         break;
 
     case 0x60:
-        // std::cout << "MOD\n";
         OP("MOD");
         break;
 
     case 0x70:
-        // std::cout << "JMP\n";
         JMP();
         break;
 
     case 0x80:
-        // std::cout << "JMZ\n";
         JMZ();
         break;
 
     case 0x90:
-        // std::cout << "JMN\n";
         JMN();
         break;
 
     case 0xA0:
-        std::cout << "DJN\n";
+        DJN();
         break;
 
     case 0xB0:
@@ -182,6 +172,37 @@ bool VirtualMachine::emulateCycle()
     }
     PC = mod(PC + 5);
     return false;
+}
+
+void VirtualMachine::DJN()
+{
+    unsigned short A;
+    if (A_MODE != 0x00)
+    {
+        A = read(std::vector<int>{REF_A[0] + 3, 2});
+        A = A - 1;
+        setOperand(A, REF_A[0] + 3);
+    }
+    else
+    {
+        A = read(REF_A);
+        A = A - 1;
+        setOperand(A, REF_A[0]);
+    }
+
+    if (A % 8000 == 0)
+        return;
+
+    unsigned short addr;
+    if (B_MODE != 0x00)
+    {
+        unsigned short inc = read(std::vector<int>{PC + 3, 2});
+        addr = mod(PC + inc * 5);
+    }
+    else
+        addr = mod(read(REF_B) * 5);
+
+    PC = addr - 5;
 }
 
 void VirtualMachine::JMN()

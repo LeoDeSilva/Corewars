@@ -37,6 +37,7 @@ private:
     void JMP();
     void JMZ();
     void JMN();
+    void DJN();
 
     void setBlock(std::vector<int>, int);
     void setData(unsigned short, int);
