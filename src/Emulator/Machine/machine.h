@@ -30,6 +30,7 @@ private:
     unsigned char A_MODE;
     unsigned char B_MODE;
     sf::RenderWindow window;
+    bool playerOne;
 
     void display();
     void MOV();
@@ -38,6 +39,7 @@ private:
     void JMZ();
     void JMN();
     void DJN();
+    void SPL();
 
     void setBlock(std::vector<int>, int);
     void setData(unsigned short, int);

@@ -43,7 +43,7 @@ void VirtualMachine::Load(std::vector<unsigned char> program, int addr)
 
 void VirtualMachine::startEmulation()
 {
-    bool playerOne = true;
+    playerOne = true;
     int oneInit = queueA[0];
     int twoInit = queueB[0];
     // for (;;)
@@ -151,7 +151,7 @@ bool VirtualMachine::emulateCycle()
         break;
 
     case 0xB0:
-        std::cout << "SPL\n";
+        SPL();
         break;
 
     case 0xC0:
@@ -167,11 +167,27 @@ bool VirtualMachine::emulateCycle()
         break;
 
     case 0xF0:
-        std::cout << "NOP\n";
         break;
     }
     PC = mod(PC + 5);
     return false;
+}
+
+void VirtualMachine::SPL()
+{
+    unsigned short addr;
+    if (B_MODE != 0x00)
+    {
+        unsigned short inc = read(std::vector<int>{PC + 3, 2});
+        addr = mod(PC + inc * 5);
+    }
+    else
+        addr = mod(read(REF_B) * 5);
+
+    if (playerOne)
+        queueA.push_back(addr);
+    else
+        queueB.push_back(addr);
 }
 
 void VirtualMachine::DJN()
@@ -180,13 +196,13 @@ void VirtualMachine::DJN()
     if (A_MODE != 0x00)
     {
         A = read(std::vector<int>{REF_A[0] + 3, 2});
-        A = A - 1;
+        A = mod(A - 1);
         setOperand(A, REF_A[0] + 3);
     }
     else
     {
         A = read(REF_A);
-        A = A - 1;
+        A = mod(A - 1);
         setOperand(A, REF_A[0]);
     }
 
